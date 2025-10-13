@@ -1,13 +1,18 @@
-/* === SIDEBAR CONTAINER === */
+.page {
+    display: flex;
+    min-height: 100vh;
+}
+
+
 .cv-s1 {
     background-color: rgb(187, 152, 49);
     width: 250px;
-    min-height: 100vh; /* makes sidebar fill screen height */
+    min-height: 100vh;
     margin: 0;
-    font-family: 'Poppins', sans-serif; /* modern font */
+    font-family: 'Poppins', sans-serif;
 }
 
-/* === PROFILE SECTION === */
+
 .cv-s1 .picture {
     background-color: rgb(21, 16, 33);
     height: 180px;
@@ -42,7 +47,7 @@
     font-size: 1em;
 }
 
-/* === CONTACT SECTION === */
+
 .cv-s1 .contact {
     margin-top: 20px;
     padding: 0 10px;
@@ -74,7 +79,7 @@
     font-size: 0.9em;
 }
 
-/* === SKILLS SECTION === */
+
 .cv-s1 .skills {
     margin-top: 20px;
     padding: 0 10px;
@@ -98,7 +103,7 @@
     margin: 5px 0;
 }
 
-/* === LANGUAGES SECTION === */
+
 .cv-s1 .languages {
     margin-top: 20px;
     padding: 0 10px;
@@ -122,7 +127,7 @@
     margin: 5px 0;
 }
 
-/* === HOBBIES SECTION === */
+
 .cv-s1 .hobbies {
     margin-top: 20px;
     padding: 0 10px;
@@ -146,12 +151,12 @@
     margin: 5px 0;
 }
 
-/* === MAIN CONTENT CONTAINER === */
-.page {
+.cv-s2 {
     flex: 1;
-    background-color: white;
-    padding: 20px;
-    font-family: 'Poppins', sans-serif; /* modern font */
+    background-color: rgb(240, 238, 238);
+    padding: 20px 40px;
+    font-family: 'Poppins', sans-serif;
     color: rgb(55, 50, 49);
-    min-height: 100vh; /* makes main content fill screen height */
 }
+
+
