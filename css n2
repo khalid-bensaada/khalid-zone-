@@ -1,196 +1,94 @@
-body{
-    overflow-x: hidden;
-   
-}
-.first-img{
-    position: absolute;
-    width: 550px;
-    height: 325px;
-    top: 250px;
-    left: 30px;
-}
+<div class="flex-1">
+            <div class="Quation-1">
+                <div class="titel-1">
+                    <p>comment obtenir de l'aide concernant une commande ?</p>
+                </div>
+                <div class="select-1">
+                    <select name="select-doctor" id="v">
+                        <option value="Dentist"> Response :</option>
+                        <option value="Phatologist">Pour toute aide concernant une commande</option>
+                        <option value="Dentist"> contactez notre équipe à la pharmacie ou par téléphone</option>
+                        <option value="Dentist"> nous vous assisterons rapidement.</option>
+                    </select>
+                </div>
+            </div>
 
-.flex-1{
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    position: relative;
-    left: 200px;
-    top: 725px;
-}
+            <div class="Quation-2">
+                <div class="titel-1">
+                    <p>comment acheter un article sur Coin De Para ?</p>
+                </div>
+                <div class="select-1">
+                    <select name="select-doctor" id="v">
+                        <option value="Dentist"> Response :</option>
+                        <option value="Phatologist"> Pour acheter un article sur Coin De Para </option>
+                        <option value="Cardiologist"> il suffit d’ajouter le produit au panier</option>
+                        <option value="Internist">puis de suivre les étapes de paiement en ligne en toute sécurité.
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </div>
 
-.titel-1{
-    font-weight: bold;
-    
-}
-.flex-2{
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    position: relative;
-    left: 200px;
-    top: 760px;
-}
+        <div class="flex-2">
+            <div class="Quation-3">
+                <div class="titel-1">
+                    <p> quel est le statut de ma commande ?</p>
+                </div>
+                <div class="select-1">
+                    <select name="select-doctor" id="v">
+                        <option value="Dentist"> Response :</option>
+                        <option value="Phatologist"> Pour connaître le statut de votre commande </option>
+                        <option value="Cardiologist"> connectez-vous à votre compte Coin De Para</option>
+                        <option value="Internist">ou contactez notre service client.</option>
+                    </select>
+                </div>
+            </div>
 
-.flex-3{
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    position: relative;
-    left: 200px;
-    top: 800px;
-}
+            <div class="Quation-4">
+                <div class="titel-1">
+                    <p>comment rechercher des articles et des boutiques sur coin de para ?</p>
+                </div>
+                <div class="select-1">
+                    <select name="select-doctor" id="v">
+                        <option value="Dentist"> Response :</option>
+                        <option value="Phatologist"> Pour rechercher des articles ou des boutiques sur Coin De Para
+                        </option>
+                        <option value="Cardiologist"> utilisez la barre de recherche en haut du site et entrez</option>
+                        <option value="Internist">le nom du produit ou de la marque.Internist</option>
+                    </select>
+                </div>
+            </div>
+        </div>
 
-.shop-on{
-    position: relative;
-    left: 250px;
-    top: 860px;
-    border: 1px solid #2EBFA5;
-    width: 200px;
-    height: 40px;
-    border-radius: 25px;
-    background-color: #2EBFA5;
-}
-
-.shop-on >p{
-    position: relative;
-    left: 25px;
-    bottom: 5px;
-    font-weight: bold;
-}
-
-.big-box{
-    display: flex;
-    display: flex;
-    gap: 200px;
-    position: relative;
-    left: 35px;
-    top: 960px;
-
-}
-
-
-.titel-shop-1{
-    position: relative;
-    left: 100px;
-    bottom: 60px;
-    font-weight: bold;
-}
-
-.discription-1{
-    position: relative;
-    left: 100px;
-    bottom: 30px;
-}
-
-.titel-shop-2{
-    position: relative;
-    left: 100px;
-    bottom: 60px;
-    font-weight: bold;
-}
-
-.discription-2{
-    position: relative;
-    left: 100px;
-    bottom: 30px;
-    
-}
-
-
-@media  (min-width: 767px) {
-body{
-    overflow-x: hidden;
-    width: 100%;
-}
-.first-img img{
-  
-    width: 1200px;
-    position: absolute;
-    
-    
-}
-
-.flex-1{
-    display: flex;
-    gap: 300px;
-    left: 100px;
-    position: relative;
-    top: 1050px;
-    flex-direction: row;
-}
-
-.flex-2{
-    display: flex;
-    position: relative;
-    top: 1100px;
-    gap: 440px;
-    left: 100px;
-    flex-direction: row;
-}
-
-.flex-3{
-    display: flex;
-    position: relative;
-    top: 1150px;
-    gap: 300px;
-    left: 100px;
-    flex-direction: row;
-}
-
-.shop-on{
-    position: relative;
-    left: 510px;
-    top: 1250px;
-    border: 1px solid #2EBFA5;
-    width: 200px;
-    height: 40px;
-    border-radius: 25px;
-    background-color: #2EBFA5;
-}
-
-.shop-on >p{
-    position: relative;
-    left: 25px;
-    bottom: 5px;
-    font-weight: bold;
-}
-
-.big-box{
-    display: flex;
-    display: flex;
-    gap: 500px;
-    position: relative;
-    left: 100px;
-    top: 1300px;
-
-}
-
-
-.titel-shop-1{
-    position: relative;
-    left: 100px;
-    bottom: 60px;
-    font-weight: bold;
-}
-
-.discription-1{
-    position: relative;
-    left: 100px;
-    bottom: 30px;
-}
-
-.titel-shop-2{
-    position: relative;
-    left: 100px;
-    bottom: 60px;
-    font-weight: bold;
-}
-
-.discription-2{
-    position: relative;
-    left: 100px;
-    bottom: 30px;
-    
-}
-}
+        <div class="flex-3">
+            <div class="Quation-5">
+                <div class="titel-1">
+                    <p>conseils pour acheter en toute sécurité sur coin de para ?</p>
+                </div>
+                <div class="select-1">
+                    <select name="select-doctor" id="v">
+                        <option value="Dentist"> Response :</option>
+                        <option value="Phatologist"> Achetez en toute sécurité sur Coin De Para en vérifiant que vous
+                            êtes </option>
+                        <option value="Cardiologist"> sur le site officiel, en payant via des moyens sécurisés et en
+                            évitant</option>
+                        <option value="Internist">de partager vos informations personnelles</option>
+                    </select>
+                </div>
+            </div>
+            <div class="Quation-6">
+                <div class="titel-1">
+                    <p>comment acheter un produit Coin de Para en cadeau ?</p>
+                </div>
+                <div class="select-1">
+                    <select name="select-doctor" id="v">
+                        <option value="Dentist"> Response :</option>
+                        <option value="Phatologist"> Pour offrir un produit Coin De Para en cadeau, ajoutez-le au panier
+                        </option>
+                        <option value="Cardiologist"> choisissez l’option « cadeau » si disponible, et suivez les étapes
+                            de paiement </option>
+                        <option value="Internist">en indiquant l’adresse du destinataire.</option>
+                    </select>
+                </div>
+            </div>
+        </div>
