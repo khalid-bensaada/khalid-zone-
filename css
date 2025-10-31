@@ -1,419 +1,294 @@
-body{
-    overflow-x: hidden;
-   
-}
-.first-img{
-    position: relative;
-    width: 550px;
-    height: 325px;
-    top: 250px;
-    left: 30px;
-    
+// main.js
+
+// --- عناصر الواجهة الموجودة في HTML الذي أرسلته ---
+const newTxBtn = document.getElementById('newTransaction'); // زر إظهار/إخفاء النموذج
+const addSection = document.getElementById('add');         // القسم الذي يحتوي على نموذج الإضافة
+const dateInput = document.getElementById('date-T');       // تاريخ
+const textInputs = document.querySelectorAll('#text-T');    // ملاحظة: HTML يحتوي على id مكرر => نستخدم العناصر بالترتيب
+// نعتبر textInputs[0] = description, textInputs[1] = amount
+const descInput = textInputs[0] || null;
+const amountInput = textInputs[1] || null;
+const addingBtn = document.getElementById('adding');      // زر Add Transaction داخل النموذج
+
+// زريْ النوع (Income / Expense) موجودان كأزرار داخل نفس القسم، لكن بلا id.
+// سنبحث عن الأزرار داخل القسم ونطابق النص.
+let incomeBtn = null;
+let expenseBtn = null;
+if (addSection) {
+  const buttonsInAdd = addSection.querySelectorAll('button');
+  buttonsInAdd.forEach(b => {
+    const txt = (b.textContent || b.innerText || '').trim().toLowerCase();
+    if (txt === 'income' || txt === 'income') incomeBtn = b;
+    if (txt === 'expense' || txt === 'expense') expenseBtn = b;
+  });
 }
 
-#v{
-    position: relative;
-    width: 18px;
+// إذا لم نستطع إيجاد الأزرار عن طريق النص، نحاول العثور على أزرار داخل القسم وفرزها
+if (!incomeBtn || !expenseBtn) {
+  const allBtns = addSection ? addSection.querySelectorAll('button') : [];
+  if (allBtns.length >= 2) {
+    incomeBtn = allBtns[0];
+    expenseBtn = allBtns[1];
+  }
 }
 
-#v:hover{
-    background-color: #2EBFA5;
+// --- تحضير مكان عرض التاريخ (History) ---
+// نحاول إيجاد العنصر الذي يحتوي النص "History of Transactions" ثم نضيف بعده حاوية للقائمة.
+// إذا لم نجده، نلصق القائمة في نهاية الـ body.
+function findHistoryContainer() {
+  const allElements = document.querySelectorAll('p, div, span, h1, h2, h3');
+  for (const el of allElements) {
+    if ((el.textContent || '').trim().toLowerCase().includes('history of transactions')) {
+      return el;
+    }
+  }
+  return null;
 }
 
-.titel-1{
-    font-weight: bold;
-    
+const historyAnchor = findHistoryContainer();
+let listContainer = document.createElement('div');
+listContainer.id = 'transactionsList';
+listContainer.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-5xl mx-auto p-4';
+
+// إذا وجدنا العنصر المرجعي، نضيف بعده الحاوية، وإلا نلصقها في نهاية الـ main أو body
+if (historyAnchor && historyAnchor.parentElement) {
+  // ضع الحاوية بعد العنصر المرجعي
+  historyAnchor.parentElement.insertBefore(listContainer, historyAnchor.nextSibling);
+} else {
+  const main = document.querySelector('main') || document.body;
+  main.appendChild(listContainer);
 }
 
+// --- حالة النموذج: مخفي بداية ---
+if (addSection) addSection.style.display = 'none';
 
-.shop-on{
-    position: relative;
-    left: 250px;
-    top: 860px;
-    border: 1px solid #2EBFA5;
-    width: 200px;
-    height: 40px;
-    border-radius: 25px;
-    background-color: #2EBFA5;
-}
+// --- بيانات المعاملات ---
+let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
 
-.shop-on >p{
-    position: relative;
-    left: 25px;
-    
-    font-weight: bold;
+// المتغير الذي يحمل مؤشر التعديل (-1 يعني إضافة جديدة)
+let editingIndex = -1;
+let selectedType = 'income'; // القيمة الافتراضية
+
+// --- دوال مساعدة ---
+function saveToLocal() {
+  localStorage.setItem('transactions', JSON.stringify(transactions));
 }
 
-.shop-on:hover{
-    background-color: red;
-}
-.shop-on:active{
-    transform: scale(0.90);
-}
-
-.titel-shop-1{
-    border: 2px solid gray;
-    width: 200px;
-    height: 40px;
-    border-radius: 25px 25px 25px 25px;
+function formatCurrency(val) {
+  // نحاول تحويل قيمة نصية إلى رقم ثم نُعيدها بصيغة ثابتة بمرتين عشريتين
+  const num = parseFloat(String(val).replace(/[^0-9.-]/g, ''));
+  if (Number.isNaN(num)) return val;
+  // لا نضع رمز العملة هنا لأن HTML المستخدم يضع "$" في placeholder
+  return num.toFixed(2);
 }
 
-.titel-shop-1 >p {
-    position: relative;
-    left: 20px;
-    
-}
-.titel-shop-2{
-    border: 2px solid gray;
-    width: 200px;
-    height: 40px;
-    border-radius: 25px 25px 25px 25px;
-}
-.titel-shop-2 >p {
-    position: relative;
-    left: 30px;
-    
-}
-.titel-shop-1:hover{
-    background-color: #2EBFA5;
-}
-.titel-shop-2:hover{
-    background-color: #2EBFA5;
+function clearForm() {
+  if (descInput) descInput.value = '';
+  if (amountInput) amountInput.value = '';
+  if (dateInput) dateInput.value = '';
+  selectedType = 'income';
+  if (incomeBtn) incomeBtn.classList.remove('opacity-50');
+  if (expenseBtn) expenseBtn.classList.add('opacity-50');
+  editingIndex = -1;
+  if (addingBtn) {
+    addingBtn.textContent = 'Add Transaction';
+  }
 }
 
-.titel-shop-1:active{
-    transform: scale(0.90);
-}
-.titel-shop-2:active{
-    transform: scale(0.90);
-}
-.big-box{
-    display: flex;
-    display: flex;
-    gap: 150px;
-    position: relative;
-    left: 35px;
-    top: 960px;
+// --- رندر البطاقات ---
+function renderList() {
+  listContainer.innerHTML = '';
 
-}
+  if (!transactions.length) {
+    const empty = document.createElement('p');
+    empty.className = 'text-gray-500 text-center col-span-full';
+    empty.textContent = 'لا توجد معاملات بعد 🕊️';
+    listContainer.appendChild(empty);
+    return;
+  }
 
+  transactions.forEach((t, idx) => {
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-2xl shadow-md p-5 flex flex-col justify-between hover:shadow-xl transition';
 
-.titel-shop-1{
-    position: relative;
-    left: 100px;
-    bottom: 60px;
-    font-weight: bold;
-}
+    // شكل البطاقة
+    const inner = document.createElement('div');
+    inner.innerHTML = `
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="font-bold text-xl ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">${t.type === 'income' ? 'Income' : 'Expense'}</h3>
+          <span class="text-sm text-gray-500">${t.date || '—'}</span>
+        </div>
+        <p class="text-gray-700 mb-1">💰 <span class="font-semibold">${t.amount}</span></p>
+        <p class="text-gray-600 text-sm">${t.desc || '— لا يوجد شرح —'}</p>
+      </div>
+    `;
 
-.discription-1{
-    position: relative;
-    left: 100px;
-    bottom: 30px;
-}
+    const actions = document.createElement('div');
+    actions.className = 'flex justify-end mt-4 space-x-2 space-x-reverse';
+    actions.innerHTML = `
+      <button data-idx="${idx}" class="editBtn bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded-lg text-sm transition">✏️ تعديل</button>
+      <button data-idx="${idx}" class="deleteBtn bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm transition">🗑️ حذف</button>
+    `;
 
-.titel-shop-2{
-    position: relative;
-    left: 100px;
-    bottom: 60px;
-    font-weight: bold;
-}
+    card.appendChild(inner);
+    card.appendChild(actions);
+    listContainer.appendChild(card);
 
-.discription-2{
-    position: relative;
-    left: 100px;
-    bottom: 30px;
-    
-}
-
-.contact{
-    position:absolute;
-    border: 1px solid #C8F2EA;
-    background-color: #C8F2EA;
-    border-radius: 25px;
-    width: 680px;
-    height: 400px;
-    top: 1550px;
-    left: 20px;
+    // ربط الأزرار
+    const delBtn = card.querySelector('.deleteBtn');
+    const editBtn = card.querySelector('.editBtn');
+    delBtn.addEventListener('click', () => deleteTransaction(idx));
+    editBtn.addEventListener('click', () => startEdit(idx));
+  });
 }
 
-.name{
-    position: relative;
-    left: 40px;
-    border: 1px solid gray;
-    width: 250px;
-    height: 50px;
-    top: 30px;
-    border-radius: 0px 25px 0px 25px;
-    background-color: rgb(255, 255, 255);
-    
+// --- إضافة معاملة ---
+function addTransaction() {
+  // قراءة القيم
+  const desc = descInput ? descInput.value.trim() : '';
+  const amountRaw = amountInput ? amountInput.value.trim() : '';
+  const date = dateInput ? dateInput.value : '';
+
+  if (!amountRaw || !date) {
+    alert('المرجو ملء الحقول المطلوبة: التاريخ والمبلغ.');
+    return;
+  }
+
+  const amount = formatCurrency(amountRaw);
+
+  const tx = {
+    type: selectedType, // 'income' أو 'expense'
+    amount,
+    date,
+    desc,
+  };
+
+  transactions.push(tx);
+  saveToLocal();
+  renderList();
+  clearForm();
+  // إخفاء النموذج بعد الإضافة
+  if (addSection) addSection.style.display = 'none';
 }
 
-.email{
-    position: relative;
-    left: 380px;
-    border: 1px solid gray;
-    width: 250px;
-    height: 50px;
-    bottom: 20px;
-    border-radius: 0px 25px 0px 25px;
-    background-color: rgb(255, 255, 255);
+// --- حذف ---
+function deleteTransaction(index) {
+  if (!confirm('هل تريد حذف هذه المعاملة؟')) return;
+  transactions.splice(index, 1);
+  saveToLocal();
+  renderList();
 }
 
-input{
-    position: relative;
-    left: 40px;
-    top: 15px;
-    border: none;
+// --- بداية تعديل ---
+function startEdit(index) {
+  const t = transactions[index];
+  if (!t) return;
+  // ملأ الحقول
+  if (descInput) descInput.value = t.desc || '';
+  if (amountInput) amountInput.value = t.amount || '';
+  if (dateInput) dateInput.value = t.date || '';
+  selectedType = t.type || 'income';
+  // تمييز زر النوع
+  if (selectedType === 'income') {
+    if (incomeBtn) incomeBtn.classList.remove('opacity-50');
+    if (expenseBtn) expenseBtn.classList.add('opacity-50');
+  } else {
+    if (expenseBtn) expenseBtn.classList.remove('opacity-50');
+    if (incomeBtn) incomeBtn.classList.add('opacity-50');
+  }
+
+  // اضهار النموذج إذا كان مخفياً
+  if (addSection) addSection.style.display = 'block';
+
+  // تغيير وظيفة الزر ليصبح تحديثًا
+  editingIndex = index;
+  if (addingBtn) {
+    addingBtn.textContent = 'Update Transaction';
+    // استبدال event handler: أولاً نزيل أي مستمع سابق ثم نضيف واحد جديد
+    addingBtn.replaceWith(addingBtn.cloneNode(true));
+    const newAddingBtn = document.getElementById('adding');
+    newAddingBtn.addEventListener('click', () => updateTransaction(index));
+  }
 }
 
-.note{
-    position: relative;
-    left: 40px;
-    width: 300px;
-    
-}
-/* chaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaat*/
-.quat{
-    position: relative;
-    top: 750px;
-    
-}
-h2 {
-  text-align: center;
-  margin-bottom: 25px;
+// --- التحديث ---
+function updateTransaction(index) {
+  const desc = descInput ? descInput.value.trim() : '';
+  const amountRaw = amountInput ? amountInput.value.trim() : '';
+  const date = dateInput ? dateInput.value : '';
+
+  if (!amountRaw || !date) {
+    alert('المرجو ملء الحقول المطلوبة: التاريخ والمبلغ.');
+    return;
+  }
+
+  const amount = formatCurrency(amountRaw);
+
+  transactions[index] = {
+    type: selectedType,
+    amount,
+    date,
+    desc,
+  };
+
+  saveToLocal();
+  renderList();
+  clearForm();
+  if (addSection) addSection.style.display = 'none';
+
+  // إعادة زر الإضافة إلى حالته الأصلية
+  const newAddingBtn = document.getElementById('adding');
+  if (newAddingBtn) {
+    newAddingBtn.textContent = 'Add Transaction';
+    newAddingBtn.replaceWith(newAddingBtn.cloneNode(true));
+    document.getElementById('adding').addEventListener('click', addTransaction);
+  }
 }
 
-.FAQ {
-  max-width: 600px;
-  margin: auto;
+// --- تبديل نوع المعاملة بواسطة الأزرار ---
+if (incomeBtn) {
+  incomeBtn.addEventListener('click', (e) => {
+    selectedType = 'income';
+    incomeBtn.classList.remove('opacity-50');
+    if (expenseBtn) expenseBtn.classList.add('opacity-50');
+  });
+}
+if (expenseBtn) {
+  expenseBtn.addEventListener('click', (e) => {
+    selectedType = 'expense';
+    expenseBtn.classList.remove('opacity-50');
+    if (incomeBtn) incomeBtn.classList.add('opacity-50');
+  });
 }
 
-details {
-  background: #fff;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  padding: 10px 15px;
-  border: 1px solid #ddd;
-  transition: background 0.3s;
+// --- زر إظهار/إخفاء قسم الإضافة ---
+if (newTxBtn) {
+  newTxBtn.addEventListener('click', () => {
+    if (!addSection) return;
+    if (addSection.style.display === 'none' || addSection.style.display === '') {
+      addSection.style.display = 'block';
+      // تغيير زر الإضافة ليضيف معاملة جديدة
+      const newAddingBtn = document.getElementById('adding');
+      if (newAddingBtn) {
+        newAddingBtn.textContent = 'Add Transaction';
+        newAddingBtn.replaceWith(newAddingBtn.cloneNode(true));
+        document.getElementById('adding').addEventListener('click', addTransaction);
+      }
+    } else {
+      addSection.style.display = 'none';
+    }
+  });
 }
 
-details:hover {
-  background: #f0f0f0;
+// --- ضبط زر الإضافة الافتراضي عند التحميل ---
+const initAddBtn = document.getElementById('adding');
+if (initAddBtn) {
+  // إزالة أي وظائف سابقة ثم إضافة addTransaction
+  initAddBtn.replaceWith(initAddBtn.cloneNode(true));
+  document.getElementById('adding').addEventListener('click', addTransaction);
 }
 
-summary {
-  font-weight: bold;
-  cursor: pointer;
-  outline: none;
-}
-
-p {
-  margin-top: 10px;
-  color: #555;
-}
-
-
-@media  (min-width: 767px) {
-body{
-    overflow-x: hidden;
-    width: 100%;
-}
-.first-img img{
-  
-    width: 1200px;
-    position: absolute;
-    
-    
-}
-
-.quat{
-    position: relative;
-    top: 1100px;
-}
-
-h2 {
-  text-align: center;
-  color: #333;
-  margin-bottom: 30px;
-}
-
-.qa {
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  margin-bottom: 15px;
-  padding: 15px 20px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.qa:hover {
-  background-color: #f0f0f0;
-}
-
-.question {
-  font-weight: bold;
-  color: #222;
-  font-size: 18px;
-}
-
-.answer {
-  display: none;
-  margin-top: 10px;
-  color: #0077aa;
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-
-
-#v{
-    position: relative;
-    width: 18px;
-}
-.titel-1{
-    font-weight: bold;
-    
-}
-
-
-.shop-on{
-    position: relative;
-    left: 510px;
-    top: 1250px;
-    border: 1px solid #2EBFA5;
-    width: 200px;
-    height: 40px;
-    border-radius: 25px;
-    background-color: #2EBFA5;
-}
-
-.shop-on >p{
-    position: relative;
-    left: 25px;
-    
-    font-weight: bold;
-}
-.shop-on:hover{
-    background-color: red;
-}
-.shop-on:active{
-    transform: scale(0.90);
-}
-.titel-shop-1{
-    border: 2px solid gray;
-    width: 200px;
-    height: 40px;
-    border-radius: 25px 25px 25px 25px;
-}
-
-.titel-shop-1 >p {
-    position: relative;
-    left: 10px;
-    
-}
-.titel-shop-2{
-    border: 2px solid gray;
-    width: 200px;
-    height: 40px;
-    border-radius: 25px 25px 25px 25px;
-}
-.titel-shop-2 >p {
-    position: relative;
-    left: 20px;
-    
-}
-.titel-shop-1:hover{
-    background-color: #2EBFA5;
-}
-.titel-shop-2:hover{
-    background-color: #2EBFA5;
-}
-
-.titel-shop-1:active{
-    transform: scale(0.90);
-}
-.titel-shop-2:active{
-    transform: scale(0.90);
-}
-.big-box{
-    display: flex;
-    display: flex;
-    gap: 500px;
-    position: relative;
-    left: 100px;
-    top: 1300px;
-
-}
-
-
-.titel-shop-1{
-    position: relative;
-    left: 100px;
-    bottom: 60px;
-    font-weight: bold;
-}
-
-.discription-1{
-    position: relative;
-    left: 100px;
-    bottom: 30px;
-}
-
-.titel-shop-2{
-    position: relative;
-    left: 100px;
-    bottom: 60px;
-    font-weight: bold;
-}
-
-.discription-2{
-    position: relative;
-    left: 100px;
-    bottom: 30px;
-    
-}
-.contact{
-    position:absolute;
-    border: 1px solid #C8F2EA;
-    background-color: #C8F2EA;
-    width: 1154px;
-    height: 560px;
-    top: 1850px;
-    left: 60px;
-}
-
-.name{
-    position: relative;
-    left: 40px;
-    border: 1px solid gray;
-    width: 450px;
-    height: 50px;
-    top: 30px;
-    border-radius: 0px 25px 0px 25px;
-    background-color: rgb(255, 255, 255);
-}
-
-.email{
-    position: relative;
-    left: 620px;
-    border: 1px solid gray;
-    width: 450px;
-    height: 50px;
-    bottom: 20px;
-    border-radius: 0px 25px 0px 25px;
-    background-color: rgb(255, 255, 255);
-}
-
-input{
-    position: relative;
-    left: 40px;
-    top: 15px;
-}
-
-.note{
-    position: relative;
-    left: 40px;
-    
-}
-}
+// --- تهيئة الواجهة ---
+clearForm();
+renderList();
