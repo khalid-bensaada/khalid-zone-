@@ -1,118 +1,118 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CV - Khalid Bensaada</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>قائمة المهام</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    #todoInput {
+      padding: 10px;
+      font-size: 16px;
+      width: 200px;
+    }
+
+    #addBtn {
+      padding: 10px;
+      margin-left: 5px;
+      cursor: pointer;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      width: 250px;
+      margin-top: 20px;
+    }
+
+    li {
+      background: white;
+      margin: 5px 0;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    button {
+      background: red;
+      color: white;
+      border: none;
+      padding: 5px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
 </head>
-
 <body>
-    <div class="page">
-        <div class="cv-s1">
-            <!-- Profile Section -->
-            <div class="picture">
-                <img class="photo" src="c:\Users\pc\AppData\Local\Packages\5319275A.WhatsAppDesktop_cv1g1gvanyjgm\TempState\8C1B6FA97C4288A4514365198566C6FA\WhatsApp Image 2025-10-13 at 06.54.25_acf91b8f.jpg" alt="Profile Picture"
-                    width="100" height="100">
-                <div class="name">
-                    <h1 class="kb">Khalid Bensaada</h1>
-                    <h3 class="software">Software Engineer</h3>
-                </div>
-            </div>
 
-            <!-- Contact Section -->
-            <div class="contact">
-                <h2 class="contact-title">Contact</h2>
-                <div class="contact-item">
-                    <img class="img"
-                        src="https://static.vecteezy.com/system/resources/thumbnails/003/720/476/small/phone-icon-telephone-icon-symbol-for-app-and-messenger-vector.jpg"
-                        alt="Phone Icon" width="20" height="20">
-                    <span class="phone">+212 6 36 02 12 63</span>
-                </div>
-                <div class="contact-item">
-                    <img class="img" src="https://i.pinimg.com/564x/59/52/de/5952ded41d9803b8bccb6db343161e43.jpg"
-                        alt="Email Icon" width="20" height="20">
-                    <span class="email">kbensaada953@gmail.com</span>
-                </div>
-                <div class="contact-item">
-                    <img class="img" src="https://www.iconpacks.net/icons/2/free-location-icon-2952-thumb.png"
-                        alt="Address Icon" width="20" height="20">
-                    <span class="address">Safi, Morocco</span>
-                </div>
-            </div>
+  <h1>📝 قائمة المهام</h1>
+  <div>
+    <input type="text" id="todoInput" placeholder="أضف مهمة جديدة">
+    <button id="addBtn">إضافة</button>
+  </div>
 
-            <!-- Skills Section -->
-            <div class="skills">
-                <h2 class="skills-title">Skills</h2>
-                <ul class="skills-list">
-                    <li>HTML</li>
-                    <li>CSS</li>
-                    <li>C</li>
-                    <li>Python</li>
-                    <li>JavaScript</li>
-                    <li>React</li>
-                    <li>Git</li>
-                    <li>GitHub</li>
-                    <li>Figma</li>
-                    <li>Canva</li>
-                    <li>Photoshop</li>
-                </ul>
-            </div>
+  <ul id="todoList"></ul>
 
-            <!-- Languages Section -->
-            <div class="languages">
-                <h2 class="languages-title">Languages</h2>
-                <ul class="languages-list">
-                    <li>Arabic: Proficient</li>
-                    <li>French: Beginner</li>
-                    <li>English: Intermediate</li>
-                </ul>
-            </div>
+  <script>
+    const input = document.getElementById("todoInput");
+    const addBtn = document.getElementById("addBtn");
+    const list = document.getElementById("todoList");
 
-            <!-- Hobbies Section -->
-            <div class="hobbies">
-                <h2 class="hobbies-title">Hobbies</h2>
-                <ul class="hobbies-list">
-                    <li>Football</li>
-                    <li>Reading</li>
-                    <li>Traveling</li>
-                    <li>Gaming</li>
-                </ul>
-            </div>
-        </div>
-        <div class="cv-s2">
-            <div class="Profile">
-                <h2 class="profile-title">Profile</h2>
-                <p class="profile-text">I am a passionate and dedicated software engineer with a strong foundation in
-                    computer science and a keen interest in web development. I thrive in collaborative environments and
-                    am always eager to learn new technologies and improve my skills.</p>
-            </div>
-            <!-- Education Section -->
-            <div class="education">
-                <h2 class="education-title">Education</h2>
-                <div class="education-item">
-                    <h3 class="bac">Baccalaureate Certificate</h3>
-                    <span class="lysse">Molay Ismail sebt gzoula safi</span>
-                    <span class="year">2024</span>
-                </div>
-            </div>
-            <!-- Experience Section -->
-            <div class="experience">
-                <h2 class="experience-title">Experience</h2>
-                <div class="experience-item">
-                    <h3 class="internship">Internship - Web Development</h3>
-                    <span class="company">Tech Solutions, Safi</span>
-                    <span class="duration">June 2023 - August 2023</span>
-                    <ul class="responsibilities">
-                        <li>Assisted in developing and maintaining company website using HTML, CSS, and JavaScript.</li>
-                        <li>Collaborated with the design team to implement responsive web designs.</li>
-                        <li>Participated in code reviews and team meetings to enhance project outcomes.</li>
-                    </ul>
-        </div>
+    // تحميل المهام من local storage
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
-    </div>
+    // دالة لعرض المهام على الشاشة
+    function renderTasks() {
+      list.innerHTML = "";
+      tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+        li.textContent = task;
 
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "❌";
+        delBtn.addEventListener("click", () => {
+          tasks.splice(index, 1);
+          saveTasks();
+          renderTasks();
+        });
+
+        li.appendChild(delBtn);
+        list.appendChild(li);
+      });
+    }
+
+    // دالة لحفظ المهام في local storage
+    function saveTasks() {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    // عند الضغط على زر الإضافة
+    addBtn.addEventListener("click", () => {
+      const task = input.value.trim();
+      if (task === "") return;
+      tasks.push(task);
+      saveTasks();
+      renderTasks();
+      input.value = "";
+    });
+
+    // عرض المهام عند تحميل الصفحة
+    renderTasks();
+  </script>
 </body>
-
 </html>
