@@ -1,0 +1,455 @@
+WorkSphere — Frontend Prototype
+
+This single-file package includes index.html and app.js (added in the same document for convenience). It implements the requested features: sidebar with Unassigned Staff, Add New Worker modal with dynamic experiences and photo preview, floorplan with 6 zones, role-based assignment rules, per-zone capacity limits, remove (X) button, profile modal, responsive layout using Tailwind CSS, and simple animations.
+
+
+---
+
+index.html
+
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WorkSphere — Staff Visual Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* small extras not provided by Tailwind CDN */
+    .zone { min-height: 140px; }
+    .employee-card { transition: transform .12s ease; }
+    .employee-card:active { transform: scale(.98); }
+    .fade { transition: opacity .18s ease; }
+    /* pale red for required empty zones */
+    .required-empty { background-color: rgba(255, 200, 200, 0.5); }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <div class="min-h-screen flex flex-col md:flex-row">
+    <!-- SIDEBAR -->
+    <aside class="w-full md:w-72 bg-white shadow p-4">
+      <h1 class="text-xl font-semibold mb-2">WorkSphere</h1>
+      <p class="text-sm text-slate-500 mb-4">Unassigned Staff</p>
+      <div class="space-y-3 mb-4" id="unassigned-list">
+        <!-- dynamically filled -->
+      </div>
+      <button id="add-worker-btn" class="w-full py-2 rounded-xl bg-green-500 text-white font-medium">Add New Worker</button>
+      <hr class="my-4" />
+      <div class="text-xs text-slate-500">Legenda:</div>
+      <div class="flex gap-2 items-center mt-2 text-sm">
+        <span class="inline-block w-3 h-3 rounded bg-green-400"></span> Open
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT / FLOORPLAN -->
+    <main class="flex-1 p-4">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- Zone cards -->
+        <section class="bg-white p-3 rounded-xl shadow zone" data-zone="conference" id="zone-conference">
+          <div class="flex justify-between items-center mb-2">
+            <h2 class="font-semibold">Salle de conférence</h2>
+            <div class="flex items-center gap-2">
+              <button class="px-2 py-1 rounded bg-slate-100" data-add-zone="conference">+</button>
+              <span class="text-xs text-slate-400">Cap: <span id="cap-conference">6</span></span>
+            </div>
+          </div>
+          <div class="space-y-2" id="members-conference"></div>
+        </section>
+
+        <section class="bg-white p-3 rounded-xl shadow zone" data-zone="reception" id="zone-reception">
+          <div class="flex justify-between items-center mb-2">
+            <h2 class="font-semibold">Réception</h2>
+            <div class="flex items-center gap-2">
+              <button class="px-2 py-1 rounded bg-slate-100" data-add-zone="reception">+</button>
+              <span class="text-xs text-slate-400">Cap: <span id="cap-reception">1</span></span>
+            </div>
+          </div>
+          <div class="space-y-2" id="members-reception"></div>
+        </section>
+
+        <section class="bg-white p-3 rounded-xl shadow zone" data-zone="servers" id="zone-servers">
+          <div class="flex justify-between items-center mb-2">
+            <h2 class="font-semibold">Salle des serveurs</h2>
+            <div class="flex items-center gap-2">
+              <button class="px-2 py-1 rounded bg-slate-100" data-add-zone="servers">+</button>
+              <span class="text-xs text-slate-400">Cap: <span id="cap-servers">3</span></span>
+            </div>
+          </div>
+          <div class="space-y-2" id="members-servers"></div>
+        </section>
+
+        <section class="bg-white p-3 rounded-xl shadow zone" data-zone="security" id="zone-security">
+          <div class="flex justify-between items-center mb-2">
+            <h2 class="font-semibold">Salle de sécurité</h2>
+            <div class="flex items-center gap-2">
+              <button class="px-2 py-1 rounded bg-slate-100" data-add-zone="security">+</button>
+              <span class="text-xs text-slate-400">Cap: <span id="cap-security">3</span></span>
+            </div>
+          </div>
+          <div class="space-y-2" id="members-security"></div>
+        </section>
+
+        <section class="bg-white p-3 rounded-xl shadow zone" data-zone="staff" id="zone-staff">
+          <div class="flex justify-between items-center mb-2">
+            <h2 class="font-semibold">Salle du personnel</h2>
+            <div class="flex items-center gap-2">
+              <button class="px-2 py-1 rounded bg-slate-100" data-add-zone="staff">+</button>
+              <span class="text-xs text-slate-400">Cap: <span id="cap-staff">8</span></span>
+            </div>
+          </div>
+          <div class="space-y-2" id="members-staff"></div>
+        </section>
+
+        <section class="bg-white p-3 rounded-xl shadow zone" data-zone="archive" id="zone-archive">
+          <div class="flex justify-between items-center mb-2">
+            <h2 class="font-semibold">Salle d’archives</h2>
+            <div class="flex items-center gap-2">
+              <button class="px-2 py-1 rounded bg-slate-100" data-add-zone="archive">+</button>
+              <span class="text-xs text-slate-400">Cap: <span id="cap-archive">2</span></span>
+            </div>
+          </div>
+          <div class="space-y-2" id="members-archive"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- ADD WORKER MODAL -->
+  <div id="modal-add" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
+    <div class="bg-white rounded-xl w-11/12 md:w-2/3 p-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="text-lg font-semibold">Add New Worker</h3>
+        <button id="close-modal" class="text-slate-500">✕</button>
+      </div>
+      <form id="add-form" class="space-y-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <input required name="name" placeholder="Nom" class="p-2 border rounded" />
+          <select required name="role" id="role-select" class="p-2 border rounded">
+            <option value="Receptionist">Receptionist</option>
+            <option value="Technician">Technician</option>
+            <option value="Security">Security</option>
+            <option value="Manager">Manager</option>
+            <option value="Cleaning">Cleaning</option>
+            <option value="Other">Other</option>
+          </select>
+          <input name="photo" id="photo-url" placeholder="Photo URL" class="p-2 border rounded" />
+          <input name="email" placeholder="Email" type="email" class="p-2 border rounded" />
+          <input name="phone" placeholder="Téléphone" class="p-2 border rounded" />
+          <div class="p-2 border rounded" id="photo-preview-container">Preview will appear here</div>
+        </div>
+
+        <div>
+          <h4 class="font-medium">Expériences professionnelles</h4>
+          <div id="experiences-list" class="space-y-2 mt-2">
+            <!-- entries -->
+          </div>
+          <button type="button" id="add-experience" class="mt-2 px-3 py-1 rounded bg-slate-100">+ Add experience</button>
+        </div>
+
+        <div class="flex gap-2 justify-end">
+          <button type="submit" class="px-4 py-2 rounded bg-green-500 text-white">Save</button>
+          <button type="button" id="cancel-modal" class="px-4 py-2 rounded bg-slate-100">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- PROFILE MODAL -->
+  <div id="modal-profile" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
+    <div class="bg-white rounded-xl w-11/12 md:w-1/2 p-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="text-lg font-semibold" id="profile-name">Profile</h3>
+        <button id="close-profile" class="text-slate-500">✕</button>
+      </div>
+      <div class="flex gap-4">
+        <img id="profile-photo" class="w-36 h-36 object-cover rounded" src="" alt="photo" />
+        <div>
+          <p id="profile-role" class="font-medium"></p>
+          <p id="profile-email" class="text-sm text-slate-600"></p>
+          <p id="profile-phone" class="text-sm text-slate-600"></p>
+          <div class="mt-3">
+            <h4 class="font-medium">Expériences</h4>
+            <ul id="profile-exps" class="list-disc pl-5 text-sm text-slate-700"></ul>
+            <p class="mt-2 text-sm text-slate-500">Localisation: <span id="profile-location"></span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
+
+---
+
+app.js
+
+// Simple front-end state manager for WorkSphere
+(() => {
+  // -- state
+  const state = {
+    staff: [
+      { id: genId(), name: 'Amina', role: 'Receptionist', photo: '', email: 'amina@example.com', phone: '+212600000001', exps: ['Front desk 2y'], location: null },
+      { id: genId(), name: 'Youssef', role: 'Technician', photo: '', email: 'youssef@example.com', phone: '+212600000002', exps: ['IT support 3y'], location: null },
+      { id: genId(), name: 'Khadija', role: 'Cleaning', photo: '', email: 'khadija@example.com', phone: '+212600000003', exps: ['Cleaning 5y'], location: null }
+    ],
+    zones: {
+      conference: { cap: 6, members: [], required: false },
+      reception: { cap: 1, members: [], required: true },
+      servers: { cap: 3, members: [], required: true },
+      security: { cap: 3, members: [], required: true },
+      staff: { cap: 8, members: [], required: false },
+      archive: { cap: 2, members: [], required: true }
+    }
+  };
+
+  // DOM refs
+  const unassignedList = document.getElementById('unassigned-list');
+  const addBtn = document.getElementById('add-worker-btn');
+  const modal = document.getElementById('modal-add');
+  const closeModal = document.getElementById('close-modal');
+  const cancelModal = document.getElementById('cancel-modal');
+  const addForm = document.getElementById('add-form');
+  const photoUrl = document.getElementById('photo-url');
+  const photoPreview = document.getElementById('photo-preview-container');
+  const experiencesList = document.getElementById('experiences-list');
+  const addExperienceBtn = document.getElementById('add-experience');
+
+  const profileModal = document.getElementById('modal-profile');
+  const closeProfile = document.getElementById('close-profile');
+
+  // helpers
+  function genId(){ return Math.random().toString(36).slice(2,9); }
+  function findById(id){ return state.staff.find(s=>s.id===id); }
+  function isEligible(role, zone){
+    // rules from spec
+    if(zone==='reception') return role==='Receptionist';
+    if(zone==='servers') return role==='Technician';
+    if(zone==='security') return role==='Security';
+    if(role==='Manager') return true;
+    if(role==='Cleaning') return zone!=='archive';
+    // others free except zones handled above
+    return true;
+  }
+  function render(){
+    // update caps
+    for(const z in state.zones){
+      const capEl = document.getElementById('cap-'+z);
+      if(capEl) capEl.textContent = state.zones[z].cap;
+    }
+
+    // unassigned
+    unassignedList.innerHTML = '';
+    state.staff.filter(s=>!s.location).forEach(s=>{
+      const card = document.createElement('div');
+      card.className = 'employee-card p-2 rounded flex items-center gap-3 bg-slate-50';
+      card.innerHTML = `
+        <img src="${s.photo||'https://via.placeholder.com/48'}" class="w-10 h-10 rounded object-cover" />
+        <div class="flex-1 text-sm">
+          <div class="font-medium">${s.name}</div>
+          <div class="text-xs text-slate-500">${s.role}</div>
+        </div>
+        <div class="flex gap-1">
+          <button data-id="${s.id}" class="open-profile text-xs px-2 py-1 rounded bg-slate-100">Open</button>
+        </div>
+      `;
+      unassignedList.appendChild(card);
+    });
+
+    // zones
+    for(const z in state.zones){
+      const container = document.getElementById('members-'+z);
+      container.innerHTML = '';
+      const zone = state.zones[z];
+      // mark required empty
+      const zoneEl = document.getElementById('zone-'+z);
+      if(zone.required && zone.members.length===0){
+        zoneEl.classList.add('required-empty');
+      } else {
+        zoneEl.classList.remove('required-empty');
+      }
+
+      zone.members.forEach(id=>{
+        const s = findById(id);
+        if(!s) return;
+        const el = document.createElement('div');
+        el.className = 'employee-card p-2 rounded flex items-center gap-3 bg-white shadow-sm';
+        el.innerHTML = `
+          <img src="${s.photo||'https://via.placeholder.com/48'}" class="w-10 h-10 rounded object-cover" />
+          <div class="flex-1 text-sm">
+            <div class="font-medium">${s.name}</div>
+            <div class="text-xs text-slate-500">${s.role}</div>
+          </div>
+          <div class="flex gap-1">
+            <button data-id="${s.id}" class="open-profile text-xs px-2 py-1 rounded bg-slate-100">Open</button>
+            <button data-id="${s.id}" data-remove-zone="${z}" class="remove-btn text-xs px-2 py-1 rounded bg-red-100">X</button>
+          </div>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    // wire profile buttons
+    document.querySelectorAll('.open-profile').forEach(b=>{
+      b.onclick = ()=>{
+        const id = b.getAttribute('data-id');
+        openProfile(id);
+      }
+    });
+
+    document.querySelectorAll('.remove-btn').forEach(b=>{
+      b.onclick = ()=>{
+        const id = b.getAttribute('data-id');
+        const z = b.getAttribute('data-remove-zone');
+        unassignFromZone(id, z);
+      }
+    });
+
+    // add-zone buttons
+    document.querySelectorAll('[data-add-zone]').forEach(btn=>{
+      btn.onclick = ()=>{
+        const zone = btn.getAttribute('data-add-zone');
+        openAssignPicker(zone);
+      }
+    });
+  }
+
+  // assign picker
+  function openAssignPicker(zone){
+    // simple prompt selector - build small dialog
+    const eligible = state.staff.filter(s=>!s.location && isEligible(s.role, zone));
+    if(eligible.length===0){
+      alert('No eligible unassigned employees for zone '+zone);
+      return;
+    }
+    const names = eligible.map(e=>`${e.name} (${e.role})`).join('\n');
+    const pick = prompt('Select index to assign to '+zone+'\n'+names+'\nEnter number (1..'+eligible.length+')');
+    const idx = parseInt(pick, 10);
+    if(!idx || idx<1 || idx>eligible.length) return;
+    const sel = eligible[idx-1];
+    assignToZone(sel.id, zone);
+  }
+
+  function assignToZone(id, zone){
+    const z = state.zones[zone];
+    if(!z) return;
+    if(z.members.length>=z.cap){ alert('Zone '+zone+' is full'); return; }
+    const s = findById(id);
+    if(!isEligible(s.role, zone)) { alert('Employee not eligible for this zone'); return; }
+    // remove from old if any
+    if(s.location){
+      const old = state.zones[s.location];
+      if(old) old.members = old.members.filter(m=>m!==id);
+    }
+    s.location = zone;
+    z.members.push(id);
+    render();
+  }
+
+  function unassignFromZone(id, zone){
+    const z = state.zones[zone];
+    if(!z) return;
+    z.members = z.members.filter(m=>m!==id);
+    const s = findById(id);
+    if(s) s.location = null;
+    render();
+  }
+
+  // profile
+  function openProfile(id){
+    const s = findById(id);
+    if(!s) return;
+    document.getElementById('profile-name').textContent = s.name;
+    document.getElementById('profile-role').textContent = s.role;
+    document.getElementById('profile-email').textContent = s.email || '';
+    document.getElementById('profile-phone').textContent = s.phone || '';
+    document.getElementById('profile-photo').src = s.photo||'https://via.placeholder.com/240';
+    const ul = document.getElementById('profile-exps'); ul.innerHTML = '';
+    (s.exps||[]).forEach(ex=>{ const li = document.createElement('li'); li.textContent = ex; ul.appendChild(li); });
+    document.getElementById('profile-location').textContent = s.location || 'Unassigned';
+    profileModal.classList.remove('hidden');
+  }
+
+  // modal handlers
+  addBtn.onclick = ()=> modal.classList.remove('hidden');
+  closeModal.onclick = ()=> modal.classList.add('hidden');
+  cancelModal.onclick = ()=> modal.classList.add('hidden');
+
+  closeProfile.onclick = ()=> profileModal.classList.add('hidden');
+
+  // photo preview
+  photoUrl.oninput = ()=>{
+    const v = photoUrl.value.trim();
+    if(!v) { photoPreview.innerHTML = 'Preview will appear here'; return; }
+    photoPreview.innerHTML = `<img src="${v}" class="w-24 h-24 object-cover rounded">`;
+  }
+
+  // experiences
+  function addExperienceInput(value=''){
+    const id = genId();
+    const wrapper = document.createElement('div');
+    wrapper.className = 'flex gap-2';
+    wrapper.innerHTML = `
+      <input data-exp-id="${id}" class="flex-1 p-2 border rounded" value="${value}" />
+      <button type="button" class="rm-exp px-2 rounded bg-red-100">X</button>
+    `;
+    experiencesList.appendChild(wrapper);
+    wrapper.querySelector('.rm-exp').onclick = ()=> wrapper.remove();
+  }
+  addExperienceBtn.onclick = ()=> addExperienceInput();
+
+  // create default experience input for UI
+  addExperienceInput('Example: Front desk 2 years');
+
+  addForm.onsubmit = (e)=>{
+    e.preventDefault();
+    const f = new FormData(addForm);
+    const name = f.get('name').trim();
+    const role = f.get('role');
+    const photo = f.get('photo').trim();
+    const email = f.get('email').trim();
+    const phone = f.get('phone').trim();
+    const exps = Array.from(experiencesList.querySelectorAll('input')).map(i=>i.value).filter(Boolean);
+    const newStaff = { id: genId(), name, role, photo, email, phone, exps, location: null };
+    state.staff.push(newStaff);
+    modal.classList.add('hidden');
+    addForm.reset();
+    experiencesList.innerHTML = '';
+    addExperienceInput('Example: ...');
+    render();
+  }
+
+  // initial render
+  render();
+
+  // expose for debugging
+  window.WORKSPHERE = { state, assignToZone, unassignFromZone, render };
+})();
+
+
+---
+
+README / Deployment & Notes
+
+To run: save index.html and app.js (content above) in same folder and open index.html in a browser.
+
+Validation: use W3C validator on index.html. Tailwind CDN is used for speed.
+
+Next steps I can do for you now (pick any):
+
+Add drag-and-drop assignment.
+
+Replace the prompt picker with a proper modal selection UI.
+
+Persist data in localStorage or a JSON backend (Node/Express) and prepare API endpoints.
+
+Prepare a GitHub repo and deploy to GitHub Pages or Vercel with a ready index.html.
+
+
+
+
+---
+
+If you'd like, I can now: deploy it to GitHub Pages (I'll give the exact steps), or convert the assignment picker to a clean modal list with thumbnails (recommended).
