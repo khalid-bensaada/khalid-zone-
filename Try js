@@ -1,0 +1,209 @@
+// ================================
+// 1) المتغيرات الأساسية
+// ================================
+let btnOne = document.getElementById("btnOne");
+let btnTwo = document.getElementById("btnTwo");
+let btnTree = document.getElementById("btnTree");
+let forma = document.getElementById("forma");
+let experienceList = document.getElementById("experienceList");
+let unassignedStaff = document.getElementById("unassignedStaff");
+
+let fullName = document.getElementById("fullName");
+let email = document.getElementById("email");
+let Photo = document.getElementById("Photo");
+let phone = document.getElementById("phone");
+let roles = document.getElementById("roles");
+let dateOne = document.getElementById("dateOne");
+let dateTwo = document.getElementById("dateTwo");
+let company = document.getElementById("company");
+let rolOld = document.getElementById("rol");
+
+let roomOne = document.getElementById("roomOne");
+let roomTwo = document.getElementById("roomTwo");
+let roomTree = document.getElementById("roomTree");
+let roomFor = document.getElementById("roomFor");
+let roomFive = document.getElementById("roomFive");
+let roomsx = document.getElementById("roomsx");
+
+// ================================
+// 2) مصفوفة الموظفين
+// ================================
+let employees = [];
+
+// ================================
+// 3) فتح / إغلاق الفورم
+// ================================
+btnOne.addEventListener("click", function(){
+    forma.classList.toggle("hidden");
+});
+
+// ================================
+// 4) إضافة خبرة جديدة داخل الفورم
+// ================================
+btnTwo.addEventListener("click", function(){
+    let start = dateOne.value;
+    let end = dateTwo.value;
+    let comp = company.value;
+
+    if(start !== "" && end !== "" && comp !== ""){
+        let divExp = document.createElement("div");
+        divExp.innerHTML = start + " → " + end + " : " + comp;
+        experienceList.appendChild(divExp);
+
+        dateOne.value = "";
+        dateTwo.value = "";
+        company.value = "";
+    } else {
+        alert("Please fill all experience fields!");
+    }
+});
+
+// ================================
+// 5) إضافة موظف جديد
+// ================================
+btnTree.addEventListener("click", function(){
+    if(fullName.value === "" || email.value === "" || phone.value === "" || roles.value === "" || Photo.value === ""){
+        alert("Please fill all required fields!");
+        return;
+    }
+
+    // جمع الخبرات
+    let experiences = [];
+    for(let i=0; i<experienceList.children.length; i++){
+        experiences.push(experienceList.children[i].innerText);
+    }
+
+    let newEmployee = {
+        id: Date.now(),
+        fullName: fullName.value,
+        email: email.value,
+        phone: phone.value,
+        role: roles.value,
+        oldRole: rolOld.value,
+        photo: Photo.value,
+        experiences: experiences,
+        currentRoom: null
+    };
+
+    employees.push(newEmployee);
+
+    displayUnassignedStaff();
+
+    // مسح الفورم
+    fullName.value = "";
+    email.value = "";
+    phone.value = "";
+    roles.value = "manager";
+    rolOld.value = "manager";
+    Photo.value = "";
+    experienceList.innerHTML = "";
+    dateOne.value = "";
+    dateTwo.value = "";
+    company.value = "";
+
+    forma.classList.add("hidden");
+});
+
+// ================================
+// 6) عرض الموظفين غير المعينين
+// ================================
+function displayUnassignedStaff(){
+    unassignedStaff.innerHTML = "<p class='font-bold text-center mb-2'>Unassigned Staff</p>";
+    for(let i=0; i<employees.length; i++){
+        if(employees[i].currentRoom === null){
+            let div = document.createElement("div");
+            div.className = "border p-1 my-1 rounded cursor-pointer bg-gray-100 hover:bg-gray-200";
+            div.innerHTML = employees[i].fullName + " (" + employees[i].role + ")";
+            
+            // عند الضغط على الموظف يمكن نقله لغرفة
+            div.addEventListener("click", function(){
+                selectRoomForEmployee(employees[i]);
+            });
+
+            unassignedStaff.appendChild(div);
+        }
+    }
+}
+
+// ================================
+// 7) اختيار غرفة للموظف
+// ================================
+function selectRoomForEmployee(emp){
+    let roomName = prompt("Enter room name: conference, reception, security, archives, personnel, servers");
+
+    // التحقق من الغرفة
+    if(roomName === "conference" || roomName === "reception" || roomName === "security" || roomName === "archives" || roomName === "personnel" || roomName === "servers"){
+        if(canEnterRoom(emp.role, roomName)){
+            emp.currentRoom = roomName;
+            displayEmployeesInRooms();
+            displayUnassignedStaff();
+        } else {
+            alert(emp.role + " cannot enter " + roomName);
+        }
+    } else {
+        alert("Invalid room name!");
+    }
+}
+
+// ================================
+// 8) التحقق من السماح بدخول الغرفة حسب الدور
+// ================================
+function canEnterRoom(role, roomName){
+    if(roomName === "reception" && role !== "receptionist") return false;
+    if(roomName === "servers" && role !== "IT specifics") return false;
+    if(roomName === "security" && role !== "security") return false;
+    if(roomName === "archives" && role === "cleaning employee") return false;
+    // manager يمكنه الدخول لأي غرفة
+    // كل الغرف الأخرى يمكن لأي دور
+    return true;
+}
+
+// ================================
+// 9) عرض الموظفين داخل الغرف
+// ================================
+function displayEmployeesInRooms(){
+    // مسح الغرف أولاً
+    roomOne.innerHTML = "<button><img src='images/plus 1.png' width='50'></button><p class='flex justify-center items-center text-gray-300 font-bold text-xl'>Salle de conférence</p>";
+    roomTwo.innerHTML = "<button><img src='images/plus 1.png' width='50'></button><p class='flex justify-center items-center text-gray-300 font-bold text-xl'>Réception</p>";
+    roomTree.innerHTML = "<button><img src='images/plus 1.png' width='50'></button><p class='flex justify-center items-center text-gray-300 font-bold text-xl'>Salle de sécurité</p>";
+    roomFor.innerHTML = "<button><img src='images/plus 1.png' width='50'></button><p class='flex justify-center items-center text-gray-300 font-bold text-xl'>Salle d’archives</p>";
+    roomFive.innerHTML = "<button><img src='images/plus 1.png' width='50'></button><p class='flex justify-center items-center text-gray-300 font-bold text-xl'>Salle du personnel</p>";
+    roomsx.innerHTML = "<button><img src='images/plus 1.png' width='50'></button><p class='flex justify-center items-center text-gray-300 font-bold text-xl'>Salle des serveurs</p>";
+
+    for(let i=0; i<employees.length; i++){
+        if(employees[i].currentRoom === "conference"){
+            addEmployeeToRoom(roomOne, employees[i]);
+        } else if(employees[i].currentRoom === "reception"){
+            addEmployeeToRoom(roomTwo, employees[i]);
+        } else if(employees[i].currentRoom === "security"){
+            addEmployeeToRoom(roomTree, employees[i]);
+        } else if(employees[i].currentRoom === "archives"){
+            addEmployeeToRoom(roomFor, employees[i]);
+        } else if(employees[i].currentRoom === "personnel"){
+            addEmployeeToRoom(roomFive, employees[i]);
+        } else if(employees[i].currentRoom === "servers"){
+            addEmployeeToRoom(roomsx, employees[i]);
+        }
+    }
+}
+
+// ================================
+// 10) إضافة الموظف داخل الغرفة مع زر X لإزالته
+// ================================
+function addEmployeeToRoom(roomDiv, emp){
+    let div = document.createElement("div");
+    div.className = "flex justify-between items-center border p-1 my-1 rounded bg-green-100";
+    div.innerHTML = "<span>" + emp.fullName + " (" + emp.role + ")</span>";
+
+    let removeBtn = document.createElement("button");
+    removeBtn.innerText = "X";
+    removeBtn.className = "bg-red-500 text-white rounded px-1 hover:bg-red-600";
+    removeBtn.addEventListener("click", function(){
+        emp.currentRoom = null;
+        displayEmployeesInRooms();
+        displayUnassignedStaff();
+    });
+
+    div.appendChild(removeBtn);
+    roomDiv.appendChild(div);
+}
