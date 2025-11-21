@@ -43,13 +43,12 @@ let workers = JSON.parse(localStorage.getItem("workers")) || [];
 let experiences = [];
 
 
-// فتح الفورم
+
 btnAddOpen.addEventListener("click", function () {
   modalForm.classList.remove("hidden");
 });
 
 
-// حفظ العامل الجديد
 saveWorker.addEventListener("click", function () {
 
   if (fullName.value === "") {
@@ -163,7 +162,7 @@ function renderWorkers() {
 }
 
 
-// فتح بروفايل العامل
+
 function openProfile(id) {
 
   let worker = null;
@@ -195,16 +194,15 @@ function openProfile(id) {
 }
 
 
-// إغلاق البروفايل
+
 closeProfile.addEventListener("click", function () {
   profilePopup.classList.add("hidden");
 });
 
 
-// عرض العمال داخل الغرف
+
 function renderRooms() {
 
-  // حذف الكروت القديمة
   let r = Object.values(rooms);
   for (let x = 0; x < r.length; x++) {
     let room = r[x];
@@ -215,7 +213,7 @@ function renderRooms() {
     }
   }
 
-  // إضافة العمال
+
   for (let i = 0; i < workers.length; i++) {
 
     let worker = workers[i];
@@ -252,7 +250,7 @@ function renderRooms() {
     }
   }
 
-  // تغيير خلفية الغرف الفارغة
+
   let entries = Object.entries(rooms);
 
   for (let i = 0; i < entries.length; i++) {
@@ -278,7 +276,7 @@ function renderRooms() {
 }
 
 
-// إضافة عامل إلى غرفة
+
 let addBtns = document.querySelectorAll(".addBtn");
 
 for (let i = 0; i < addBtns.length; i++) {
@@ -316,13 +314,11 @@ for (let i = 0; i < addBtns.length; i++) {
 }
 
 
-// إغلاق قائمة الاختيار
 closePopup.addEventListener("click", function () {
   popupSelect.classList.add("hidden");
 });
 
 
-// التحقق من الدور والغرفة
 function checkRoleRoom(role, roomId) {
   if (roomId === "roomTwo" && role !== "receptionist") return false;
   if (roomId === "roomsx" && role !== "IT") return false;
@@ -332,12 +328,12 @@ function checkRoleRoom(role, roomId) {
 }
 
 
-// تنظيف الفورم
+
 function clearForm() {
   fullName.value = "";
   email.value = "";
   phone.value = "";
-  photo.value = "";
+  photo.value = "";u
   role.value = "manager";
 
   experiences = [];
@@ -345,6 +341,6 @@ function clearForm() {
 }
 
 
-// تشغيل أولي
+f
 renderWorkers();
 renderRooms();
