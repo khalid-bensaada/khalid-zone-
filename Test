@@ -56,7 +56,7 @@ saveWorker.addEventListener("click", function () {
     return;
   }
 
-  // حفظ التجارب (بدون spread)
+ 
   let copiedExp = [];
   for (let i = 0; i < experiences.length; i++) {
     copiedExp.push(experiences[i]);
@@ -85,7 +85,7 @@ saveWorker.addEventListener("click", function () {
 });
 
 
-// إضافة تجربة
+
 addExp.addEventListener("click", function () {
 
   if (expCompany.value === "" || expRole.value === "") {
@@ -110,8 +110,6 @@ addExp.addEventListener("click", function () {
   expEnd.value = "";
 });
 
-
-// عرض اللائحة داخل الفورم
 function renderExperienceList() {
   experienceList.innerHTML = "";
 
@@ -124,14 +122,11 @@ function renderExperienceList() {
   }
 }
 
-
-// حفظ البيانات
 function saveData() {
   localStorage.setItem("workers", JSON.stringify(workers));
 }
 
 
-// عرض العمال غير المعينين
 function renderWorkers() {
 
   unassignedList.innerHTML = "";
