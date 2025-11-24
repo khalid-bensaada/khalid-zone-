@@ -39,7 +39,9 @@
                     <p class="font-bold text-lg mt-2">Salle de sécurité</p>
                 </div>
             </div>
-
+            <div>
+                <div class="border-2 border-gray-600 h-[150px]"></div>
+            </div>
             <div class="flex gap-2">
                 <div id="roomFor" class="border-4 border-gray-600 flex-1 h-[200px] flex flex-col items-center p-2">
                     <button class="addBtn"><img src="images/plus 1.png" width="50"></button>
