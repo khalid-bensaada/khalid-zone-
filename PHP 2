@@ -1,0 +1,17 @@
+<?php
+$sql = "SELECT Animals.Name, Animals.Type_food, Animals.Image, Habitats.Name_Hab
+        FROM Animals
+        JOIN Habitats ON Animals.Habitat_ID = Habitats.ID_Hab";
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        echo "<h3>" . $row["Name"] . "</h3>";
+        echo "<p>نوع الطعام: " . $row["Type_food"] . "</p>";
+        echo "<p>البيئة: " . $row["Name_Hab"] . "</p>";
+        echo "<img src='images/" . $row["Image"] . "' width='100'>";
+    }
+} else {
+    echo "لا توجد بيانات";
+}
+?>
