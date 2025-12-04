@@ -1,0 +1,9 @@
+<?php
+$sql = "DELETE FROM Animals WHERE ID=1";
+
+if($conn->query($sql) === TRUE){
+    echo "تم حذف الحيوان!";
+} else {
+    echo "خطأ: " . $conn->error;
+}
+?>
