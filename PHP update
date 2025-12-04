@@ -1,0 +1,11 @@
+<?php
+$sql = "UPDATE Animals
+        SET Name='Lion Updated', Type_food='Carnivore'
+        WHERE ID=1";
+
+if($conn->query($sql) === TRUE){
+    echo "تم تعديل الحيوان بنجاح!";
+} else {
+    echo "خطأ: " . $conn->error;
+}
+?>
