@@ -1,0 +1,6 @@
+<?php
+$sql = "SELECT Animals.Name, Habitats.Name_Hab 
+        FROM Animals
+        JOIN Habitats ON Animals.Habitat_ID = Habitats.ID_Hab
+        WHERE Animals.Type_food='Carnivore'";
+$result = $conn->query($sql);
