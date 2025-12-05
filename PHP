@@ -1,20 +1,17 @@
 <?php
-if(isset($_POST['submit'])) {
-    $name = $_POST['name'];
-    $type_food = $_POST['type_food'];
-    $image = $_FILES['image']['name'];
-    $habitat_id = $_POST['habitat_id'];
+$sql = "SELECT * FROM animal";
+$result = $conn->query($sql);
 
-    // رفع الصورة
-    move_uploaded_file($_FILES['image']['tmp_name'], "images/".$image);
-
-    $sql = "INSERT INTO Animals (Name, Type_food, Image, Habitat_ID)
-            VALUES ('$name', '$type_food', '$image', $habitat_id)";
-
-    if($conn->query($sql) === TRUE){
-        echo "تمت إضافة الحيوان بنجاح!";
-    } else {
-        echo "خطأ: " . $conn->error;
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        echo "<div>";
+        echo "<h3>" . $row['Name_animal'] . "</h3>";
+        echo "<p>Type: " . $row['Type_food'] . "</p>";
+        echo "<p>Habitat ID: " . $row['Habitat_ID'] . "</p>";
+        echo "<img src='images/" . $row['Image_animal'] . "' width='120'>";
+        echo "</div><hr>";
     }
+} else {
+    echo "Aucun animal trouvé.";
 }
 ?>
